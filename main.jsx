@@ -1,5 +1,5 @@
 // ============================================================
-// Florada — app principal (navegação + chrome + tweaks)
+// Canabica — app principal (navegação + chrome + tweaks)
 // ============================================================
 
 const THEMES = {
@@ -53,7 +53,7 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "fonte": 16
 }/*EDITMODE-END*/;
 
-function FloradaTweaks() {
+function CanabicaTweaks() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
   useEffect(() => { applyTheme(t.tema, t.noturno, t.fonte, t.cantos === "reto"); }, [t.tema, t.noturno, t.fonte, t.cantos]);
   return (
@@ -77,7 +77,7 @@ function Header({ route, go }) {
     <header className="topbar">
       <div className="wrap topbar-inner">
         <button className="brand" onClick={() => go("feed")}>
-          <span className="mark"><Mark size={30}/></span> Florada
+          <span className="mark"><Mark size={30}/></span> Canabica
         </button>
         <nav className="nav">
           {items.map(([k, label]) => (
@@ -112,8 +112,9 @@ function App() {
   const [route, setRoute] = useState("feed");
   const [param, setParam] = useState(null);
   const [stack, setStack] = useState([]);
-  const [favs, setFavs] = useState(new Set(["acdc", "northern"]));
+  const [favs, setFavs] = useState(new Set(["acdc-cultive", "northern-verde"]));
   const [userReviews, setUserReviews] = useState([]);
+  const [userAssocReviews, setUserAssocReviews] = useState([]);
 
   const go = (name, p = null) => {
     if (name === "back") {
@@ -133,6 +134,7 @@ function App() {
 
   const toggleFav = (id) => setFavs(f => { const n = new Set(f); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const addReview = (r) => setUserReviews(rs => [r, ...rs]);
+  const addAssocReview = (r) => setUserAssocReviews(rs => [r, ...rs]);
 
   const topRoute = ["feed","search","compare","profile"].includes(route) ? route : "";
 
@@ -143,12 +145,14 @@ function App() {
         {route === "feed" && <FeedScreen go={go} favs={favs} toggleFav={toggleFav} />}
         {route === "search" && <SearchScreen go={go} favs={favs} toggleFav={toggleFav} />}
         {route === "strain" && <StrainDetail id={param} go={go} favs={favs} toggleFav={toggleFav} />}
+        {route === "assoc" && <AssocDetail id={param} go={go} />}
         {route === "write" && <WriteReview presetStrain={param} go={go} addReview={addReview} />}
+        {route === "writeassoc" && <WriteAssocReview presetAssoc={param} go={go} addAssocReview={addAssocReview} />}
         {route === "compare" && <CompareScreen go={go} />}
         {route === "profile" && <ProfileScreen go={go} favs={favs} userReviews={userReviews} toggleFav={toggleFav} />}
       </main>
       <MobileNav route={topRoute || route} go={go} />
-      <FloradaTweaks />
+      <CanabicaTweaks />
     </>
   );
 }

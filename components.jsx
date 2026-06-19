@@ -1,5 +1,5 @@
 // ============================================================
-// Florada — componentes compartilhados
+// Canabica — componentes compartilhados
 // ============================================================
 const { useState, useMemo, useEffect, useRef } = React;
 
@@ -118,31 +118,34 @@ function CannaPill({ k, v, accent }) {
   );
 }
 
-// ---- Card de strain ---------------------------------------------------
-function StrainCard({ strain, onOpen, fav, onFav }) {
-  const topEff = strain.effects[0];
-  const topCond = strain.conditions[0];
+// ---- Card de produto ---------------------------------------------------
+function StrainCard({ strain: product, onOpen, fav, onFav }) {
+  const topEff = product.effects[0];
+  const topCond = product.conditions[0];
+  const assoc = assocById(product.assoc);
   return (
-    <button onClick={() => onOpen(strain.id)} className="card" style={{ textAlign: "left", padding: 0, overflow: "hidden", display: "flex", flexDirection: "column", transition: "transform .12s, box-shadow .15s, border-color .15s", cursor: "pointer" }}
+    <button onClick={() => onOpen(product.id)} className="card" style={{ textAlign: "left", padding: 0, overflow: "hidden", display: "flex", flexDirection: "column", transition: "transform .12s, box-shadow .15s, border-color .15s", cursor: "pointer" }}
       onMouseEnter={e => { e.currentTarget.style.boxShadow = "var(--shadow)"; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "var(--line-2)"; }}
       onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "var(--line)"; }}>
       <div style={{ position: "relative" }}>
-        <BudTile type={strain.type} style={{ height: 150 }} rounded="0" label={`flor · ${strain.name}`}/>
-        <div style={{ position: "absolute", top: 10, left: 10 }}><TypeBadge type={strain.type} small/></div>
-        <div onClick={(e) => { e.stopPropagation(); onFav && onFav(strain.id); }} className="iconbtn" style={{ position: "absolute", top: 8, right: 8, background: "oklch(1 0 0 / .85)", color: fav ? "var(--accent-deep)" : "var(--ink-soft)", width: 34, height: 34 }}>
+        <BudTile type={product.type} style={{ height: 150 }} rounded="0" label={`flor · ${product.name}`}/>
+        <div style={{ position: "absolute", top: 10, left: 10 }}><TypeBadge type={product.type} small/></div>
+        <div onClick={(e) => { e.stopPropagation(); onFav && onFav(product.id); }} className="iconbtn" style={{ position: "absolute", top: 8, right: 8, background: "oklch(1 0 0 / .85)", color: fav ? "var(--accent-deep)" : "var(--ink-soft)", width: 34, height: 34 }}>
           <Icon name={fav ? "heartfill" : "heart"} size={17}/>
         </div>
       </div>
       <div style={{ padding: "13px 15px 15px", display: "flex", flexDirection: "column", gap: 9, flex: 1 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 8 }}>
-          <h3 style={{ fontSize: 18, fontWeight: 700 }}>{strain.name}</h3>
-          <Stars value={strain.rating} size={13} showNum/>
+          <h3 style={{ fontSize: 18, fontWeight: 700 }}>{product.name}</h3>
+          <Stars value={product.rating} size={13} showNum/>
         </div>
+        <div style={{ fontSize: 12.5, color: "var(--muted)" }}>{assoc?.name}</div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          <span className="chip mono" style={{ fontSize: 11, padding: "3px 8px" }}>THC {strain.thc}</span>
-          <span className="chip mono" style={{ fontSize: 11, padding: "3px 8px" }}>CBD {strain.cbd}</span>
+          <span className="chip mono" style={{ fontSize: 11, padding: "3px 8px" }}>THC {product.thc}</span>
+          <span className="chip mono" style={{ fontSize: 11, padding: "3px 8px" }}>CBD {product.cbd}</span>
+          <span className="chip mono" style={{ fontSize: 11, padding: "3px 8px" }}>~R$ {product.avgPrice}</span>
         </div>
-        <p style={{ fontSize: 13.5, color: "var(--muted)", lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{strain.blurb}</p>
+        <p style={{ fontSize: 13.5, color: "var(--muted)", lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.blurb}</p>
         <div style={{ marginTop: "auto", paddingTop: 6, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, borderTop: "1px solid var(--line)" }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 600, color: "var(--primary-deep)" }}>
             <span style={{ width: 7, height: 7, borderRadius: 999, background: COMMON_EFFECT_BG[topEff.id] || "var(--primary)" }}/>
@@ -165,12 +168,10 @@ function EffectTag({ id, on, onClick }) {
   );
 }
 
-// ---- Card de review ---------------------------------------------------
+// ---- Card de review de produto ----------------------------------------
 function ReviewCard({ r, showStrain }) {
   const [helpful, setHelpful] = useState(false);
-  const s = strainById(r.strain);
-  const lote = s?.lotes.find(l => l.id === r.lote);
-  const assoc = lote && assocById(lote.assoc);
+  const p = productById(r.product);
   return (
     <div className="card" style={{ padding: 18, display: "flex", flexDirection: "column", gap: 12 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
@@ -182,9 +183,9 @@ function ReviewCard({ r, showStrain }) {
         <Stars value={r.rating} size={15}/>
       </div>
 
-      {showStrain && s && (
+      {showStrain && p && (
         <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, color: "var(--primary-deep)" }}>
-          <Icon name="leaf" size={15}/> {s.name}
+          <Icon name="leaf" size={15}/> {p.name}
         </div>
       )}
 
@@ -196,16 +197,41 @@ function ReviewCard({ r, showStrain }) {
         {r.flavor.map(f => <span key={f} className="chip" style={{ color: "var(--accent-deep)", borderColor: "var(--accent-soft)" }}>{f}</span>)}
       </div>
 
-      {lote && assoc && (
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", background: "var(--surface-2)", borderRadius: 10, fontSize: 12.5 }}>
-          <Icon name="doc" size={15} style={{ color: "var(--muted)" }}/>
-          <span style={{ color: "var(--ink-soft)" }}>Lote <span className="mono" style={{ fontWeight: 700 }}>{lote.code}</span> · {assoc.name}</span>
-          <span className="mono" style={{ marginLeft: "auto", color: "var(--muted)" }}>THC {lote.thc}% · CBD {lote.cbd}%</span>
+      <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 13, color: "var(--muted)" }}>
+        <span style={{ fontSize: 12.5 }}>Dose: <span className="mono" style={{ color: "var(--ink-soft)" }}>{r.dose}</span></span>
+        <button onClick={() => setHelpful(h => !h)} style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600, color: helpful ? "var(--primary-deep)" : "var(--muted)" }}>
+          <Icon name="thumb" size={16}/> Útil ({r.helpful + (helpful ? 1 : 0)})
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ---- Card de review de associação --------------------------------------
+function AssocReviewCard({ r, showAssoc }) {
+  const [helpful, setHelpful] = useState(false);
+  const a = assocById(r.assoc);
+  return (
+    <div className="card" style={{ padding: 18, display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+        <div className="avatar-btn" style={{ background: "var(--surface-2)", color: "var(--primary-deep)", border: "1px solid var(--line-2)" }}>{r.initials}</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 700, fontSize: 14.5 }}>{r.author}</div>
+          <div style={{ fontSize: 12.5, color: "var(--muted)" }}>{r.date}</div>
+        </div>
+        <Stars value={r.rating} size={15}/>
+      </div>
+
+      {showAssoc && a && (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, color: "var(--primary-deep)" }}>
+          <Icon name="shield" size={15}/> {a.name}
         </div>
       )}
 
+      <p style={{ fontSize: 14.5, lineHeight: 1.55, color: "var(--ink-soft)", textWrap: "pretty" }}>{r.text}</p>
+
       <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 13, color: "var(--muted)" }}>
-        <span style={{ fontSize: 12.5 }}>Dose: <span className="mono" style={{ color: "var(--ink-soft)" }}>{r.dose}</span></span>
+        <span style={{ fontSize: 12.5 }}>Entrega: <span className="mono" style={{ color: "var(--ink-soft)" }}>{r.deliveryDays} dias</span></span>
         <button onClick={() => setHelpful(h => !h)} style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 600, color: helpful ? "var(--primary-deep)" : "var(--muted)" }}>
           <Icon name="thumb" size={16}/> Útil ({r.helpful + (helpful ? 1 : 0)})
         </button>
@@ -222,9 +248,8 @@ function AssocRow({ assoc, onOpen }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{ fontWeight: 700, fontSize: 15 }}>{assoc.name}</span>
-          {assoc.verified && <span style={{ color: "var(--primary)", display: "inline-flex" }} title="Verificada"><Icon name="shield" size={15}/></span>}
         </div>
-        <div style={{ fontSize: 12.5, color: "var(--muted)" }}>{assoc.city} · {assoc.uf} · {assoc.members.toLocaleString("pt-BR")} membros</div>
+        <div style={{ fontSize: 12.5, color: "var(--muted)" }}>{assoc.city} · {assoc.uf} · entrega ~{assoc.avgDeliveryDays}d</div>
       </div>
       <div style={{ textAlign: "right", flex: "none" }}>
         <Stars value={assoc.rating} size={13} showNum/>
@@ -249,5 +274,5 @@ function SectionHead({ title, sub, action }) {
 
 Object.assign(window, {
   Icon, Mark, Stars, TypeBadge, BudTile, EffectBar, CannaPill,
-  StrainCard, EffectTag, ReviewCard, AssocRow, SectionHead,
+  StrainCard, EffectTag, ReviewCard, AssocReviewCard, AssocRow, SectionHead,
 });

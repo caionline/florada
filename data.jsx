@@ -1,5 +1,5 @@
 // ============================================================
-// Florada — dados mock
+// Canabica — dados mock
 // ============================================================
 
 const CONDITIONS = [
@@ -43,28 +43,38 @@ const TYPE_META = {
   cbd: { label: "Rica em CBD", hue: 25, tint: "oklch(0.66 0.11 40)" },
 };
 
+// labels de produto (flor / concentrado / óleo etc.)
+const LABEL_META = {
+  flor: { label: "Flor" },
+  oleo: { label: "Óleo" },
+  concentrado: { label: "Concentrado" },
+  capsula: { label: "Cápsula" },
+};
+
+// ----- Associações ------------------------------------------------------
 const ASSOCIATIONS = [
-  { id: "abrace", name: "Abrace Esperança", city: "João Pessoa", uf: "PB", members: 18400, strains: 12, rating: 4.8, reviews: 2310, verified: true, since: 2016, blurb: "Pioneira no cultivo associativo no Nordeste, com laudo em todos os lotes." },
-  { id: "apepi", name: "APEPI", city: "Rio de Janeiro", uf: "RJ", members: 9600, strains: 8, rating: 4.7, reviews: 1420, verified: true, since: 2014, blurb: "Foco em pacientes com epilepsia e TEA. Acompanhamento médico próprio." },
-  { id: "cultive", name: "Cultive", city: "Campinas", uf: "SP", members: 12200, strains: 10, rating: 4.6, reviews: 1880, verified: true, since: 2015, blurb: "Ampla variedade de cultivares e óleos full spectrum padronizados." },
-  { id: "cannab", name: "Cannab Brasil", city: "Florianópolis", uf: "SC", members: 5400, strains: 6, rating: 4.5, reviews: 760, verified: true, since: 2018, blurb: "Produção rastreada lote a lote, com QR code no frasco." },
-  { id: "verde", name: "Verde Vida", city: "Belo Horizonte", uf: "MG", members: 4100, strains: 5, rating: 4.4, reviews: 540, verified: false, since: 2020, blurb: "Associação jovem em expansão, forte em flor de THC para dor." },
+  { id: "abrace", name: "Abrace Esperança", city: "João Pessoa", uf: "PB", address: "Rua das Trincheiras, 412", members: 18400, founded: 2016, cultivo: ["Flor", "Óleo"], site: "abraceesperanca.org.br", rating: 4.8, reviews: 312, avgDeliveryDays: 6 },
+  { id: "apepi", name: "APEPI", city: "Rio de Janeiro", uf: "RJ", address: "Av. Atlântica, 1200", members: 9600, founded: 2014, cultivo: ["Óleo"], site: "apepi.org.br", rating: 4.7, reviews: 184, avgDeliveryDays: 9 },
+  { id: "cultive", name: "Cultive", city: "Campinas", uf: "SP", address: "Rua Barão de Itapura, 850", members: 12200, founded: 2015, cultivo: ["Flor", "Óleo", "Concentrado"], site: "cultive.org.br", rating: 4.6, reviews: 241, avgDeliveryDays: 5 },
+  { id: "cannab", name: "Cannab Brasil", city: "Florianópolis", uf: "SC", address: "Rua das Rendeiras, 220", members: 5400, founded: 2018, cultivo: ["Flor"], site: "cannabbrasil.org", rating: 4.5, reviews: 96, avgDeliveryDays: 8 },
+  { id: "verde", name: "Verde Vida", city: "Belo Horizonte", uf: "MG", address: "Av. Afonso Pena, 3000", members: 4100, founded: 2020, cultivo: ["Flor"], site: "verdevida.org.br", rating: 4.1, reviews: 58, avgDeliveryDays: 14 },
 ];
 
-// Lotes: cada um traz laudo (COA) com THC/CBD reais daquele lote
-function lote(id, assoc, code, thc, cbd, date, terps, verified) {
-  return { id, assoc, code, thc, cbd, date, terps, verified };
-}
-
-const STRAINS = [
+// ----- Produtos -----------------------------------------------------------
+// cada produto pertence a UMA associação específica
+const PRODUCTS = [
   {
-    id: "charlotte",
+    id: "charlotte-abrace",
     name: "Charlotte's Angel",
+    assoc: "abrace",
     type: "cbd",
+    label: "oleo",
     genetics: "Harlequin × Cannatonic",
     thc: "1–4%", cbd: "10–16%",
-    rating: 4.9, reviews: 412,
+    avgPrice: 280,
+    rating: 4.9, reviews: 162,
     flavors: ["Cítrico", "Pinho", "Terroso"],
+    terps: ["Mirceno", "Pineno"],
     effects: [
       { id: "calmante", pct: 88 },
       { id: "alivio_dor", pct: 74 },
@@ -76,20 +86,19 @@ const STRAINS = [
       { id: "dor", pct: 64 },
     ],
     blurb: "CBD dominante com THC mínimo. Clareza mental sem psicoatividade — a porta de entrada mais comum para novos pacientes.",
-    lotes: [
-      lote("ch-1", "abrace", "L-2406-A", 2.1, 13.4, "abr/2025", ["Mirceno", "Pineno"], true),
-      lote("ch-2", "apepi", "L-CA-118", 1.6, 11.8, "mar/2025", ["Pineno", "Cariofileno"], true),
-      lote("ch-3", "cultive", "L-7741", 3.2, 14.9, "mai/2025", ["Limoneno", "Mirceno"], true),
-    ],
   },
   {
-    id: "acdc",
+    id: "acdc-cultive",
     name: "ACDC",
+    assoc: "cultive",
     type: "cbd",
+    label: "oleo",
     genetics: "Cannatonic pheno",
     thc: "1–6%", cbd: "12–20%",
-    rating: 4.8, reviews: 356,
+    avgPrice: 310,
+    rating: 4.8, reviews: 148,
     flavors: ["Terroso", "Doce", "Madeira"],
+    terps: ["Mirceno", "Cariofileno"],
     effects: [
       { id: "alivio_dor", pct: 84 },
       { id: "calmante", pct: 79 },
@@ -101,19 +110,19 @@ const STRAINS = [
       { id: "ansiedade", pct: 66 },
     ],
     blurb: "Referência para dor crônica e fibromialgia. Alívio físico mantendo a cabeça funcional para o dia a dia.",
-    lotes: [
-      lote("ac-1", "cultive", "L-7702", 4.0, 17.2, "abr/2025", ["Mirceno", "Cariofileno"], true),
-      lote("ac-2", "verde", "VV-031", 5.5, 14.0, "mai/2025", ["Mirceno", "Humuleno"], false),
-    ],
   },
   {
-    id: "harlequin",
+    id: "harlequin-abrace",
     name: "Harlequin",
+    assoc: "abrace",
     type: "hibrida",
+    label: "flor",
     genetics: "Colombian × Thai × Swiss",
     thc: "5–9%", cbd: "8–12%",
-    rating: 4.7, reviews: 289,
+    avgPrice: 190,
+    rating: 4.7, reviews: 121,
     flavors: ["Manga", "Almíscar", "Terroso"],
+    terps: ["Mirceno", "Pineno"],
     effects: [
       { id: "relaxante", pct: 76 },
       { id: "alivio_dor", pct: 71 },
@@ -125,19 +134,19 @@ const STRAINS = [
       { id: "enxaqueca", pct: 52 },
     ],
     blurb: "Proporção equilibrada CBD:THC. Relaxa sem sedar — boa para uso diurno em dor moderada.",
-    lotes: [
-      lote("ha-1", "abrace", "L-2402-H", 7.4, 9.1, "fev/2025", ["Mirceno", "Pineno"], true),
-      lote("ha-2", "cannab", "CB-209", 6.2, 10.5, "abr/2025", ["Limoneno", "Mirceno"], true),
-    ],
   },
   {
-    id: "northern",
+    id: "northern-verde",
     name: "Northern Lights",
+    assoc: "verde",
     type: "indica",
+    label: "flor",
     genetics: "Afghani × Thai",
     thc: "16–21%", cbd: "<1%",
-    rating: 4.7, reviews: 521,
+    avgPrice: 210,
+    rating: 4.7, reviews: 203,
     flavors: ["Doce", "Picante", "Pinho"],
+    terps: ["Mirceno", "Cariofileno"],
     effects: [
       { id: "sono", pct: 89 },
       { id: "relaxante", pct: 85 },
@@ -149,19 +158,19 @@ const STRAINS = [
       { id: "ansiedade", pct: 60 },
     ],
     blurb: "Índica clássica de efeito corporal profundo. Uso noturno para insônia e dor que tira o sono.",
-    lotes: [
-      lote("nl-1", "verde", "VV-044", 19.2, 0.4, "mai/2025", ["Mirceno", "Cariofileno"], true),
-      lote("nl-2", "cannab", "CB-221", 17.8, 0.6, "abr/2025", ["Mirceno", "Linalol"], true),
-    ],
   },
   {
-    id: "sourdiesel",
+    id: "sourdiesel-cultive",
     name: "Sour Diesel",
+    assoc: "cultive",
     type: "sativa",
+    label: "flor",
     genetics: "Chemdawg × Super Skunk",
     thc: "18–24%", cbd: "<1%",
-    rating: 4.5, reviews: 388,
+    avgPrice: 230,
+    rating: 4.5, reviews: 138,
     flavors: ["Diesel", "Cítrico", "Herbal"],
+    terps: ["Limoneno", "Cariofileno"],
     effects: [
       { id: "energia", pct: 82 },
       { id: "foco", pct: 75 },
@@ -173,18 +182,19 @@ const STRAINS = [
       { id: "nausea", pct: 50 },
     ],
     blurb: "Sativa energizante e cerebral. Indicada para fadiga, apatia e dias de baixa disposição.",
-    lotes: [
-      lote("sd-1", "cultive", "L-7758", 21.0, 0.5, "mai/2025", ["Limoneno", "Cariofileno"], true),
-    ],
   },
   {
-    id: "granddaddy",
+    id: "granddaddy-abrace",
     name: "Granddaddy Purple",
+    assoc: "abrace",
     type: "indica",
+    label: "flor",
     genetics: "Purple Urkle × Big Bud",
     thc: "17–23%", cbd: "<1%",
-    rating: 4.6, reviews: 304,
+    avgPrice: 220,
+    rating: 4.6, reviews: 109,
     flavors: ["Uva", "Frutas", "Doce"],
+    terps: ["Mirceno", "Linalol"],
     effects: [
       { id: "relaxante", pct: 87 },
       { id: "sono", pct: 80 },
@@ -196,19 +206,19 @@ const STRAINS = [
       { id: "nausea", pct: 55 },
     ],
     blurb: "Índica roxa de aroma frutado intenso. Relaxamento muscular e estímulo de apetite.",
-    lotes: [
-      lote("gd-1", "abrace", "L-2405-G", 20.4, 0.3, "abr/2025", ["Mirceno", "Linalol"], true),
-      lote("gd-2", "verde", "VV-051", 18.1, 0.5, "mai/2025", ["Mirceno", "Humuleno"], false),
-    ],
   },
   {
-    id: "cbg",
+    id: "cbg-apepi",
     name: "White CBG",
+    assoc: "apepi",
     type: "cbd",
+    label: "oleo",
     genetics: "CBG-rico (linhagem própria)",
     thc: "<1%", cbd: "1% / CBG 14%",
-    rating: 4.4, reviews: 142,
+    avgPrice: 300,
+    rating: 4.4, reviews: 64,
     flavors: ["Limão", "Herbal", "Pinho"],
+    terps: ["Pineno", "Limoneno"],
     effects: [
       { id: "foco", pct: 72 },
       { id: "calmante", pct: 64 },
@@ -220,18 +230,19 @@ const STRAINS = [
       { id: "autismo", pct: 48 },
     ],
     blurb: "Rica em CBG, o 'canabinoide mãe'. Sem psicoatividade, foco e clareza com alívio leve.",
-    lotes: [
-      lote("cbg-1", "apepi", "L-CBG-07", 0.5, 1.2, "mar/2025", ["Pineno", "Limoneno"], true),
-    ],
   },
   {
-    id: "blueberry",
+    id: "blueberry-cannab",
     name: "Blueberry",
+    assoc: "cannab",
     type: "indica",
+    label: "flor",
     genetics: "Afghani × Thai × Purple Thai",
     thc: "15–20%", cbd: "<1%",
-    rating: 4.6, reviews: 267,
+    avgPrice: 195,
+    rating: 4.6, reviews: 87,
     flavors: ["Mirtilo", "Doce", "Frutas"],
+    terps: ["Mirceno", "Pineno"],
     effects: [
       { id: "relaxante", pct: 83 },
       { id: "feliz", pct: 72 },
@@ -243,22 +254,26 @@ const STRAINS = [
       { id: "depressao", pct: 54 },
     ],
     blurb: "Aroma marcante de mirtilo. Relaxamento bem-humorado, boa para fim de tarde e ansiedade.",
-    lotes: [
-      lote("bb-1", "cannab", "CB-230", 18.4, 0.4, "mai/2025", ["Mirceno", "Pineno"], true),
-      lote("bb-2", "cultive", "L-7766", 16.9, 0.5, "abr/2025", ["Mirceno", "Limoneno"], true),
-    ],
   },
 ];
 
-// ----- Reviews ---------------------------------------------------------
+// ----- Reviews de produto -------------------------------------------------
 function rv(o) { return o; }
-const REVIEWS = [
-  rv({ id: "r1", strain: "charlotte", lote: "ch-1", author: "Marina R.", initials: "MR", rating: 5, date: "12 mai 2025", helpful: 47, condition: "ansiedade", form: "oleo", effects: ["calmante", "foco"], flavor: ["Cítrico"], dose: "0,5 ml · 2x/dia", text: "Mudou minha rotina. Tomo de manhã e consigo trabalhar sem aquela névoa de ansiedade. O lote da Abrace veio com laudo certinho, 13% de CBD como prometido. Zero psicoatividade." }),
-  rv({ id: "r2", strain: "charlotte", lote: "ch-3", author: "Paulo Henrique", initials: "PH", rating: 4, date: "28 abr 2025", helpful: 31, condition: "epilepsia", form: "oleo", effects: ["calmante"], flavor: ["Terroso"], dose: "1 ml · noite", text: "Uso para o meu filho (autorização Anvisa). Reduziu bastante as crises. Esse lote da Cultive tinha um pouco mais de THC (3,2%), notei ele mais sonolento — fiquei de olho." }),
-  rv({ id: "r3", strain: "northern", lote: "nl-1", author: "Dani S.", initials: "DS", rating: 5, date: "02 mai 2025", helpful: 58, condition: "insonia", form: "vapor", effects: ["sono", "relaxante"], flavor: ["Doce", "Pinho"], dose: "0,1 g · 21h", text: "Pra quem tem insônia crônica: isso aqui é um abraço. Vaporizo meia hora antes de dormir e apago. A flor da Verde Vida veio densa e cheirosa." }),
-  rv({ id: "r4", strain: "acdc", lote: "ac-1", author: "Cláudia M.", initials: "CM", rating: 5, date: "19 abr 2025", helpful: 64, condition: "fibromialgia", form: "vapor", effects: ["alivio_dor", "calmante"], flavor: ["Terroso", "Doce"], dose: "0,15 g · manhã", text: "Fibromialgia há 9 anos. ACDC foi a primeira coisa que me deu função sem me derrubar. Consigo cuidar da casa. Lote da Cultive impecável, alto CBD." }),
-  rv({ id: "r5", strain: "sourdiesel", lote: "sd-1", author: "Rafa T.", initials: "RT", rating: 4, date: "07 mai 2025", helpful: 22, condition: "depressao", form: "vapor", effects: ["energia", "criativo"], flavor: ["Cítrico"], dose: "0,1 g · manhã", text: "Tomo cuidado por ser bem cerebral — em dia ruim de ansiedade evito. Mas pra apatia e falta de vontade, me tira da cama. Não usar à noite!" }),
-  rv({ id: "r6", strain: "harlequin", lote: "ha-1", author: "Beatriz L.", initials: "BL", rating: 5, date: "23 abr 2025", helpful: 39, condition: "dor", form: "vapor", effects: ["alivio_dor", "feliz"], flavor: ["Manga"], dose: "0,12 g · tarde", text: "Equilíbrio perfeito pra dor de coluna durante o trabalho. Alivia e ainda fico de bom humor, sem ficar 'chapada'. Recomendo pra quem tá começando na flor." }),
+const PRODUCT_REVIEWS = [
+  rv({ id: "r1", product: "charlotte-abrace", author: "Marina R.", initials: "MR", rating: 5, date: "12 mai 2025", helpful: 47, condition: "ansiedade", form: "oleo", effects: ["calmante", "foco"], flavor: ["Cítrico"], dose: "0,5 ml · 2x/dia", text: "Mudou minha rotina. Tomo de manhã e consigo trabalhar sem aquela névoa de ansiedade. Zero psicoatividade, e o efeito é bem consistente entre os frascos." }),
+  rv({ id: "r2", product: "charlotte-abrace", author: "Paulo Henrique", initials: "PH", rating: 4, date: "28 abr 2025", helpful: 31, condition: "epilepsia", form: "oleo", effects: ["calmante"], flavor: ["Terroso"], dose: "1 ml · noite", text: "Uso para o meu filho (autorização Anvisa). Reduziu bastante as crises. Em alguns frascos notei ele um pouco mais sonolento — fico de olho na dose." }),
+  rv({ id: "r3", product: "northern-verde", author: "Dani S.", initials: "DS", rating: 5, date: "02 mai 2025", helpful: 58, condition: "insonia", form: "vapor", effects: ["sono", "relaxante"], flavor: ["Doce", "Pinho"], dose: "0,1 g · 21h", text: "Pra quem tem insônia crônica: isso aqui é um abraço. Vaporizo meia hora antes de dormir e apago. A flor vem densa e cheirosa." }),
+  rv({ id: "r4", product: "acdc-cultive", author: "Cláudia M.", initials: "CM", rating: 5, date: "19 abr 2025", helpful: 64, condition: "fibromialgia", form: "vapor", effects: ["alivio_dor", "calmante"], flavor: ["Terroso", "Doce"], dose: "0,15 g · manhã", text: "Fibromialgia há 9 anos. ACDC foi a primeira coisa que me deu função sem me derrubar. Consigo cuidar da casa de novo." }),
+  rv({ id: "r5", product: "sourdiesel-cultive", author: "Rafa T.", initials: "RT", rating: 4, date: "07 mai 2025", helpful: 22, condition: "depressao", form: "vapor", effects: ["energia", "criativo"], flavor: ["Cítrico"], dose: "0,1 g · manhã", text: "Tomo cuidado por ser bem cerebral — em dia ruim de ansiedade evito. Mas pra apatia e falta de vontade, me tira da cama. Não usar à noite!" }),
+  rv({ id: "r6", product: "harlequin-abrace", author: "Beatriz L.", initials: "BL", rating: 5, date: "23 abr 2025", helpful: 39, condition: "dor", form: "vapor", effects: ["alivio_dor", "feliz"], flavor: ["Manga"], dose: "0,12 g · tarde", text: "Equilíbrio perfeito pra dor de coluna durante o trabalho. Alivia e ainda fico de bom humor, sem ficar 'chapada'. Recomendo pra quem tá começando." }),
+];
+
+// ----- Reviews de associação (experiência de compra, separada do produto) -
+const ASSOC_REVIEWS = [
+  rv({ id: "a1", assoc: "abrace", author: "Marina R.", initials: "MR", rating: 5, date: "13 mai 2025", helpful: 28, deliveryDays: 5, text: "Pedido chegou embalado com cuidado, dentro do prazo informado. Atendimento por WhatsApp respondeu rápido quando tive dúvida sobre dosagem." }),
+  rv({ id: "a2", assoc: "verde", author: "Dani S.", initials: "DS", rating: 3, date: "05 mai 2025", helpful: 19, deliveryDays: 16, text: "Produto é bom, mas a entrega atrasou bastante — disseram 7 dias e levou mais de duas semanas, sem aviso. Precisa melhorar a logística." }),
+  rv({ id: "a3", assoc: "cultive", author: "Cláudia M.", initials: "CM", rating: 5, date: "20 abr 2025", helpful: 41, deliveryDays: 4, text: "Sempre rápido e com rastreio atualizado direto no app deles. Já sou associada há 2 anos e nunca tive problema com pedido." }),
+  rv({ id: "a4", assoc: "apepi", author: "Paulo Henrique", initials: "PH", rating: 4, date: "29 abr 2025", helpful: 17, deliveryDays: 9, text: "Acompanhamento médico próprio é o diferencial. Entrega no prazo, mas o site de pedidos é meio confuso." }),
 ];
 
 const COMMON_EFFECT_BG = {
@@ -273,11 +288,16 @@ const COMMON_EFFECT_BG = {
 function condLabel(id) { const c = CONDITIONS.find(x => x.id === id); return c ? c.label : id; }
 function effLabel(id) { const e = EFFECTS.find(x => x.id === id); return e ? e.label : id; }
 function formLabel(id) { const f = USAGE_FORMS.find(x => x.id === id); return f ? f.label : id; }
+function labelLabel(id) { const l = LABEL_META[id]; return l ? l.label : id; }
 function assocById(id) { return ASSOCIATIONS.find(a => a.id === id); }
-function strainById(id) { return STRAINS.find(s => s.id === id); }
-function reviewsForStrain(id) { return REVIEWS.filter(r => r.strain === id); }
+function productById(id) { return PRODUCTS.find(p => p.id === id); }
+function reviewsForProduct(id) { return PRODUCT_REVIEWS.filter(r => r.product === id); }
+function reviewsForAssoc(id) { return ASSOC_REVIEWS.filter(r => r.assoc === id); }
+function productsForAssoc(id) { return PRODUCTS.filter(p => p.assoc === id); }
 
 Object.assign(window, {
-  CONDITIONS, EFFECTS, USAGE_FORMS, TYPE_META, ASSOCIATIONS, STRAINS, REVIEWS,
-  COMMON_EFFECT_BG, condLabel, effLabel, formLabel, assocById, strainById, reviewsForStrain,
+  CONDITIONS, EFFECTS, USAGE_FORMS, TYPE_META, LABEL_META,
+  ASSOCIATIONS, PRODUCTS, PRODUCT_REVIEWS, ASSOC_REVIEWS,
+  COMMON_EFFECT_BG, condLabel, effLabel, formLabel, labelLabel,
+  assocById, productById, reviewsForProduct, reviewsForAssoc, productsForAssoc,
 });

@@ -1,12 +1,12 @@
 // ============================================================
-// Florada — telas (parte 1): Feed, Busca, Detalhe
+// Canabica — telas (parte 1): Feed, Busca, Detalhe
 // ============================================================
 
 // ---- FEED -------------------------------------------------------------
 function FeedScreen({ go, favs, toggleFav }) {
   const [cond, setCond] = useState(null);
   const list = useMemo(() => {
-    let l = [...STRAINS];
+    let l = [...PRODUCTS];
     if (cond) l = l.filter(s => s.conditions.some(c => c.id === cond)).sort((a,b) => {
       const av = a.conditions.find(c=>c.id===cond).pct, bv = b.conditions.find(c=>c.id===cond).pct;
       return bv - av;
@@ -24,13 +24,13 @@ function FeedScreen({ go, favs, toggleFav }) {
         <div style={{ position: "absolute", inset: 0, opacity: .14, background: "repeating-linear-gradient(115deg, transparent 0 28px, white 28px 29px)" }}/>
         <div style={{ position: "relative", maxWidth: 640 }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "5px 12px", borderRadius: 999, background: "oklch(1 0 0 / .16)", fontSize: 12.5, fontWeight: 600, marginBottom: 16 }}>
-            <Icon name="shield" size={14}/> Avaliações com laudo de lote verificado
+            <Icon name="shield" size={14}/> Avaliações reais, separadas por produto e por associação
           </span>
-          <h1 style={{ fontSize: "clamp(28px, 5vw, 42px)", fontWeight: 800, lineHeight: 1.03, marginBottom: 12 }}>A experiência real de cada paciente, lote por lote.</h1>
+          <h1 style={{ fontSize: "clamp(28px, 5vw, 42px)", fontWeight: 800, lineHeight: 1.03, marginBottom: 12 }}>A experiência real de cada paciente, produto a produto.</h1>
           <p style={{ fontSize: 16.5, opacity: .92, lineHeight: 1.5, marginBottom: 22, maxWidth: 540 }}>Compare cultivares, óleos e associações pela condição que você trata — não por marketing. Escrito por quem usa cannabis medicinal de verdade.</p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <button className="btn" style={{ background: "white", color: "var(--primary-deep)" }} onClick={() => go("search")}><Icon name="search" size={17}/> Buscar por condição</button>
-            <button className="btn" style={{ background: "oklch(1 0 0 / .15)", color: "white", backdropFilter: "blur(4px)" }} onClick={() => go("write")}><Icon name="plus" size={17}/> Avaliar uma strain</button>
+            <button className="btn" style={{ background: "oklch(1 0 0 / .15)", color: "white", backdropFilter: "blur(4px)" }} onClick={() => go("write")}><Icon name="plus" size={17}/> Avaliar um produto</button>
           </div>
         </div>
       </div>
@@ -57,9 +57,9 @@ function FeedScreen({ go, favs, toggleFav }) {
       </div>
 
       {/* ASSOCIATIONS */}
-      <SectionHead title="Associações em destaque" sub="Quem cultiva e entrega com rastreabilidade" action={<button className="btn btn-ghost btn-sm hide-mobile" onClick={() => go("compare")}>Comparar <Icon name="compare" size={15}/></button>}/>
+      <SectionHead title="Associações em destaque" sub="Melhor avaliadas em qualidade de atendimento e entrega" action={<button className="btn btn-ghost btn-sm hide-mobile" onClick={() => go("compare")}>Comparar <Icon name="compare" size={15}/></button>}/>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 14 }}>
-        {topAssoc.map(a => <AssocRow key={a.id} assoc={a}/>)}
+        {topAssoc.map(a => <AssocRow key={a.id} assoc={a} onOpen={(id) => go("assoc", id)}/>)}
       </div>
     </div>
   );
@@ -76,7 +76,7 @@ function SearchScreen({ go, favs, toggleFav }) {
   const toggle = (set, setter, v) => { const n = new Set(set); n.has(v) ? n.delete(v) : n.add(v); setter(n); };
 
   const results = useMemo(() => {
-    let l = STRAINS.filter(s => {
+    let l = PRODUCTS.filter(s => {
       if (q && !(`${s.name} ${s.genetics} ${s.flavors.join(" ")}`.toLowerCase().includes(q.toLowerCase()))) return false;
       if (cond && !s.conditions.some(c => c.id === cond)) return false;
       if (effs.size && ![...effs].every(e => s.effects.some(x => x.id === e))) return false;
@@ -161,14 +161,14 @@ function SearchScreen({ go, favs, toggleFav }) {
   );
 }
 
-// ---- DETALHE DA STRAIN ------------------------------------------------
+// ---- DETALHE DO PRODUTO ------------------------------------------------
 function StrainDetail({ id, go, favs, toggleFav }) {
-  const s = strainById(id);
+  const s = productById(id);
   const [tab, setTab] = useState("sobre");
-  const reviews = reviewsForStrain(id);
-  const [loteSel, setLoteSel] = useState(s.lotes[0].id);
+  const reviews = reviewsForProduct(id);
   if (!s) return null;
   const fav = favs.has(s.id);
+  const assoc = assocById(s.assoc);
 
   return (
     <div className="wrap pad-bottom" style={{ paddingTop: 18, paddingBottom: 60 }}>
@@ -183,6 +183,9 @@ function StrainDetail({ id, go, favs, toggleFav }) {
             <span style={{ fontSize: 13, color: "var(--muted)" }} className="mono">{s.genetics}</span>
           </div>
           <h1 style={{ fontSize: "clamp(30px, 5vw, 42px)", fontWeight: 800, marginBottom: 10 }}>{s.name}</h1>
+          <button onClick={() => go("assoc", assoc.id)} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 600, color: "var(--primary-deep)", marginBottom: 14 }}>
+            <Icon name="shield" size={15}/> {assoc.name}
+          </button>
           <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18, flexWrap: "wrap" }}>
             <Stars value={s.rating} size={20} showNum/>
             <span style={{ color: "var(--muted)", fontSize: 14 }}>{s.reviews} avaliações de pacientes</span>
@@ -192,11 +195,11 @@ function StrainDetail({ id, go, favs, toggleFav }) {
           <div style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
             <CannaPill k="THC" v={s.thc}/>
             <CannaPill k="CBD" v={s.cbd} accent/>
-            <CannaPill k="Disponível em" v={`${s.lotes.length} assoc.`}/>
+            <CannaPill k="Preço médio" v={`R$ ${s.avgPrice}`}/>
           </div>
 
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <button className="btn btn-primary" onClick={() => go("write", s.id)}><Icon name="plus" size={17}/> Avaliar esta strain</button>
+            <button className="btn btn-primary" onClick={() => go("write", s.id)}><Icon name="plus" size={17}/> Avaliar este produto</button>
             <button className="btn btn-ghost" onClick={() => toggleFav(s.id)} style={{ color: fav ? "var(--accent-deep)" : "var(--ink)" }}><Icon name={fav ? "heartfill" : "heart"} size={17}/> {fav ? "Salva" : "Salvar"}</button>
             <button className="btn btn-ghost"><Icon name="share" size={17}/></button>
           </div>
@@ -205,7 +208,7 @@ function StrainDetail({ id, go, favs, toggleFav }) {
 
       {/* TABS */}
       <div style={{ display: "flex", gap: 4, borderBottom: "1px solid var(--line)", marginBottom: 24 }}>
-        {[["sobre","Efeitos & uso"],["lotes","Lotes & laudos"],["reviews",`Avaliações (${reviews.length})`]].map(([k,label]) => (
+        {[["sobre","Efeitos & uso"],["reviews",`Avaliações (${reviews.length})`]].map(([k,label]) => (
           <button key={k} onClick={() => setTab(k)} style={{ padding: "11px 16px", fontWeight: 700, fontSize: 14.5, color: tab === k ? "var(--primary-deep)" : "var(--muted)", borderBottom: tab === k ? "2.5px solid var(--primary)" : "2.5px solid transparent", marginBottom: -1 }}>{label}</button>
         ))}
       </div>
@@ -221,6 +224,10 @@ function StrainDetail({ id, go, favs, toggleFav }) {
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {s.flavors.map(f => <span key={f} className="chip" style={{ color: "var(--accent-deep)", borderColor: "var(--accent-soft)", padding: "7px 13px" }}>{f}</span>)}
             </div>
+            <h3 style={{ fontSize: 17, margin: "24px 0 12px" }}>Terpenos</h3>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {s.terps.map(t => <span key={t} className="chip" style={{ padding: "7px 13px" }}><Icon name="drop" size={13}/> {t}</span>)}
+            </div>
           </div>
           <div className="card" style={{ padding: 22 }}>
             <h3 style={{ fontSize: 17, marginBottom: 16 }}>Ajuda mais com</h3>
@@ -235,8 +242,6 @@ function StrainDetail({ id, go, favs, toggleFav }) {
         </div>
       )}
 
-      {tab === "lotes" && <LotesPanel s={s} loteSel={loteSel} setLoteSel={setLoteSel} go={go}/>}
-
       {tab === "reviews" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 760 }}>
           <button className="btn btn-accent" style={{ alignSelf: "start" }} onClick={() => go("write", s.id)}><Icon name="plus" size={17}/> Escrever avaliação</button>
@@ -248,60 +253,62 @@ function StrainDetail({ id, go, favs, toggleFav }) {
   );
 }
 
-// ---- Painel de lotes/laudos -------------------------------------------
-function LotesPanel({ s, loteSel, setLoteSel, go }) {
-  const lote = s.lotes.find(l => l.id === loteSel) || s.lotes[0];
-  const assoc = assocById(lote.assoc);
+// ---- DETALHE DA ASSOCIAÇÃO ---------------------------------------------
+function AssocDetail({ id, go }) {
+  const a = assocById(id);
+  const [tab, setTab] = useState("produtos");
+  const reviews = reviewsForAssoc(id);
+  const products = productsForAssoc(id);
+  if (!a) return null;
+
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1.3fr", gap: 24 }} className="two-col">
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        <div className="label-cap" style={{ marginBottom: 2 }}>Lotes disponíveis · {s.lotes.length}</div>
-        {s.lotes.map(l => {
-          const a = assocById(l.assoc);
-          const on = l.id === loteSel;
-          return (
-            <button key={l.id} onClick={() => setLoteSel(l.id)} className="card" style={{ padding: 14, textAlign: "left", borderColor: on ? "var(--primary)" : "var(--line)", borderWidth: on ? 2 : 1, background: on ? "var(--primary-tint)" : "var(--surface)", cursor: "pointer" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-                <span className="mono" style={{ fontWeight: 700, fontSize: 14 }}>{l.code}</span>
-                {l.verified ? <span className="chip" style={{ color: "var(--primary-deep)", borderColor: "var(--primary-soft)", background: "var(--surface)", fontSize: 11 }}><Icon name="shield" size={12}/> Laudo verificado</span>
-                  : <span className="chip" style={{ color: "var(--muted)", fontSize: 11 }}>Sem laudo</span>}
-              </div>
-              <div style={{ fontSize: 13, color: "var(--ink-soft)", marginTop: 6, fontWeight: 600 }}>{a.name}</div>
-              <div style={{ fontSize: 12, color: "var(--muted)" }}>{a.city}/{a.uf} · colheita {l.date}</div>
-              <div className="mono" style={{ fontSize: 12, marginTop: 7, color: "var(--ink-soft)" }}>THC {l.thc}% · CBD {l.cbd}%</div>
-            </button>
-          );
-        })}
+    <div className="wrap pad-bottom" style={{ paddingTop: 18, paddingBottom: 60 }}>
+      <button onClick={() => go("back")} className="btn btn-ghost btn-sm" style={{ marginBottom: 16 }}><Icon name="back" size={16}/> Voltar</button>
+
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 28, marginBottom: 30, alignItems: "flex-start" }} className="detail-head">
+        <BudTile type="hibrida" icon="shield" style={{ height: 280, width: 320, flex: "1 1 280px", maxWidth: 360 }} label=""/>
+        <div style={{ flex: "2 1 360px", minWidth: 0 }}>
+          <span style={{ fontSize: 13, color: "var(--muted)" }}>{a.city} · {a.uf} · desde {a.founded}</span>
+          <h1 style={{ fontSize: "clamp(30px, 5vw, 42px)", fontWeight: 800, margin: "8px 0 14px" }}>{a.name}</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18, flexWrap: "wrap" }}>
+            <Stars value={a.rating} size={20} showNum/>
+            <span style={{ color: "var(--muted)", fontSize: 14 }}>{a.reviews} avaliações de experiência de compra</span>
+          </div>
+          <p style={{ fontSize: 16, lineHeight: 1.55, color: "var(--ink-soft)", marginBottom: 20, maxWidth: 560 }}>{a.address} · {a.members.toLocaleString("pt-BR")} membros · cultivo: {a.cultivo.join(", ")} · site: <span className="mono">{a.site}</span></p>
+
+          <div style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
+            <CannaPill k="Membros" v={a.members.toLocaleString("pt-BR")}/>
+            <CannaPill k="Prazo médio" v={`${a.avgDeliveryDays}d`} accent/>
+            <CannaPill k="Produtos" v={products.length}/>
+          </div>
+
+          <button className="btn btn-primary" onClick={() => go("writeassoc", a.id)}><Icon name="plus" size={17}/> Avaliar esta associação</button>
+        </div>
       </div>
 
-      {/* COA / laudo */}
-      <div className="card" style={{ padding: 0, overflow: "hidden", alignSelf: "start" }}>
-        <div style={{ padding: "18px 22px", borderBottom: "1px solid var(--line)", display: "flex", alignItems: "center", gap: 11, background: "var(--surface-2)" }}>
-          <Icon name="flask" size={20} style={{ color: "var(--primary)" }}/>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 15 }}>Laudo do lote <span className="mono">{lote.code}</span></div>
-            <div style={{ fontSize: 12.5, color: "var(--muted)" }}>{assoc.name} · análise de colheita {lote.date}</div>
-          </div>
-          {lote.verified && <span style={{ marginLeft: "auto", color: "var(--primary)" }} title="Verificado pela Florada"><Icon name="shield" size={22}/></span>}
-        </div>
-        <div style={{ padding: 22 }}>
-          <div style={{ display: "flex", gap: 12, marginBottom: 22 }}>
-            <CannaPill k="THC" v={lote.thc + "%"}/>
-            <CannaPill k="CBD" v={lote.cbd + "%"} accent/>
-            <CannaPill k="Razão" v={(lote.cbd/Math.max(lote.thc,0.1)).toFixed(1) + ":1"}/>
-          </div>
-          <div className="label-cap" style={{ marginBottom: 10 }}>Terpenos predominantes</div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 22 }}>
-            {lote.terps.map(t => <span key={t} className="chip" style={{ padding: "7px 13px" }}><Icon name="drop" size={13}/> {t}</span>)}
-          </div>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <button className="btn btn-ghost btn-sm"><Icon name="doc" size={15}/> Ver laudo (PDF)</button>
-            <button className="btn btn-ghost btn-sm" onClick={() => go("write", s.id)}><Icon name="plus" size={15}/> Avaliar este lote</button>
-          </div>
-        </div>
+      <div style={{ display: "flex", gap: 4, borderBottom: "1px solid var(--line)", marginBottom: 24 }}>
+        {[["produtos",`Produtos (${products.length})`],["reviews",`Avaliações de compra (${reviews.length})`]].map(([k,label]) => (
+          <button key={k} onClick={() => setTab(k)} style={{ padding: "11px 16px", fontWeight: 700, fontSize: 14.5, color: tab === k ? "var(--primary-deep)" : "var(--muted)", borderBottom: tab === k ? "2.5px solid var(--primary)" : "2.5px solid transparent", marginBottom: -1 }}>{label}</button>
+        ))}
       </div>
+
+      {tab === "produtos" && (
+        products.length === 0 ? <div className="card" style={{ padding: 32, textAlign: "center", color: "var(--muted)" }}>Nenhum produto cadastrado.</div> : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 18 }}>
+            {products.map(p => <StrainCard key={p.id} strain={p} onOpen={(id) => go("strain", id)} fav={false} onFav={() => {}}/>)}
+          </div>
+        )
+      )}
+
+      {tab === "reviews" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 760 }}>
+          <button className="btn btn-accent" style={{ alignSelf: "start" }} onClick={() => go("writeassoc", a.id)}><Icon name="plus" size={17}/> Escrever avaliação</button>
+          {reviews.length === 0 && <div className="card" style={{ padding: 32, textAlign: "center", color: "var(--muted)" }}>Ainda sem avaliações. Seja o primeiro!</div>}
+          {reviews.map(r => <AssocReviewCard key={r.id} r={r}/>)}
+        </div>
+      )}
     </div>
   );
 }
 
-Object.assign(window, { FeedScreen, SearchScreen, StrainDetail });
+Object.assign(window, { FeedScreen, SearchScreen, StrainDetail, AssocDetail });
